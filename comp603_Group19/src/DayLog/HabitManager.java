@@ -12,6 +12,10 @@ public class HabitManager {
         habits.add(new Habit(name, frequency));
     }
 
+    public void addHabitObject(Habit habit) {
+        habits.add(habit);
+    }
+
     public void editHabit(int index, String name, String freq) {
         if (valid(index)) {
             habits.get(index).setName(name);
@@ -25,9 +29,9 @@ public class HabitManager {
         }
     }
 
-    public void toggleCompletion(int index, LocalDate date) {
+    public void markHabitDone(int index, LocalDate date) {
         if (valid(index)) {
-            habits.get(index).toggleCompletion(date);
+            habits.get(index).markDone(date);
         }
     }
 

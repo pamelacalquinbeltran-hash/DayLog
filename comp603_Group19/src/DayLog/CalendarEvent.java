@@ -1,16 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package DayLog;
 
 import java.time.LocalDate;
 
 public class CalendarEvent {
 
-    private String title;
-    private LocalDate date;
-    private String description;
+    private final String title;
+    private final LocalDate date;
+    private final String description;
 
     public CalendarEvent(String title, LocalDate date, String description) {
         this.title = title;
@@ -22,8 +18,17 @@ public class CalendarEvent {
         return date;
     }
 
+    public String toFileString() {
+        return title + "|" + date + "|" + description;
+    }
+
+    public static CalendarEvent fromFileString(String line) {
+        String[] p = line.split("\\|");
+        return new CalendarEvent(p[0], LocalDate.parse(p[1]), p[2]);
+    }
+
     @Override
     public String toString() {
-        return title + " (" + description + ")";
+        return title + " - " + description;
     }
 }

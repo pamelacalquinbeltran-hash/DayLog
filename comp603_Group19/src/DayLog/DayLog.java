@@ -16,7 +16,11 @@ public class DayLog {
 
     private void start() {
         showTitle();
+        StorageManager.loadHabits(habitManager);
+        StorageManager.loadEvents(calendarManager);
         mainMenu();
+        StorageManager.saveHabits(habitManager.getHabits());
+        StorageManager.saveEvents(calendarManager.getAllEvents());
         System.out.println("Saving data...");
         System.out.println("Goodbye!");
     }
@@ -85,17 +89,34 @@ public class DayLog {
             return;
         }
 
-        System.out.println("\n--- TODAY'S HABIT CHECKLIST ---");
-        for (int i = 0; i < habitManager.getHabits().size(); i++) {
-            boolean done = habitManager.isCompletedOnDate(i, LocalDate.now());
-            System.out.println((i + 1) + ". " + (done ? "[X] " : "[ ] ")
-                    + habitManager.getHabits().get(i));
-        }
+        boolean inChecklist = true;
 
-        System.out.print("Toggle habit (0 to back): ");
-        int choice = readInt();
-        if (choice > 0) {
-            habitManager.toggleCompletion(choice - 1, LocalDate.now());
+        while (inChecklist) {
+            System.out.println("\n--- TODAY'S HABIT CHECKLIST ---");
+
+            for (int i = 0; i < habitManager.getHabits().size(); i++) {
+                boolean done = habitManager.isCompletedOnDate(i, LocalDate.now());
+                System.out.println((i + 1) + ". " + (done ? "[X] " : "[ ] ")
+                        + habitManager.getHabits().get(i));
+            }
+
+            System.out.print("Enter habit number to mark done (0 to back): ");
+            int choice = readInt();
+
+            if (choice == 0) {
+                inChecklist = false;
+            } else {
+                int index = choice - 1;
+                if (index >= 0 && index < habitManager.getHabits().size()) {
+                    habitManager.markHabitDone(index, LocalDate.now());
+                    System.out.println(
+                            "Habit \"" + habitManager.getHabits().get(index)
+                            + "\" marked as done."
+                    );
+                } else {
+                    System.out.println("Invalid habit number.");
+                }
+            }
         }
     }
 
@@ -142,19 +163,14 @@ public class DayLog {
     private void addHabit() {
         System.out.print("Habit name: ");
         String name = scanner.nextLine();
-
         System.out.print("Frequency: ");
         String frequency = scanner.nextLine();
-
         habitManager.addHabit(name, frequency);
-
-        System.out.println("Habit \"" + name + "\" with frequency \""
-                + frequency + "\" was added successfully.");
+        System.out.println("Habit \"" + name + "\" with frequency \"" + frequency + "\" was added successfully.");
     }
 
     private void editHabit() {
         if (!habitManager.hasHabits()) {
-            System.out.println("No habits to edit.");
             return;
         }
 
@@ -164,19 +180,15 @@ public class DayLog {
 
         System.out.print("New name: ");
         String name = scanner.nextLine();
-
         System.out.print("New frequency: ");
         String frequency = scanner.nextLine();
 
         habitManager.editHabit(index, name, frequency);
-
-        System.out.println("Habit updated to \"" + name
-                + "\" [" + frequency + "].");
+        System.out.println("Habit updated successfully.");
     }
 
     private void deleteHabit() {
         if (!habitManager.hasHabits()) {
-            System.out.println("No habits to delete.");
             return;
         }
 
@@ -186,7 +198,6 @@ public class DayLog {
 
         String removed = habitManager.getHabits().get(index).toString();
         habitManager.deleteHabit(index);
-
         System.out.println("Habit " + removed + " was deleted successfully.");
     }
 
@@ -220,15 +231,12 @@ public class DayLog {
     private void addEvent() {
         System.out.print("Event title: ");
         String title = scanner.nextLine();
-
         System.out.print("Event date (YYYY-MM-DD): ");
         LocalDate date = LocalDate.parse(scanner.nextLine());
-
         System.out.print("Description: ");
         String desc = scanner.nextLine();
 
         calendarManager.addEvent(title, date, desc);
-
         System.out.println("Event \"" + title + "\" added successfully.");
     }
 

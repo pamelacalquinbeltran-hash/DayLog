@@ -15,10 +15,8 @@ public class Habit {
         this.frequency = frequency;
     }
 
-    public void toggleCompletion(LocalDate date) {
-        if (!completedDates.add(date)) {
-            completedDates.remove(date);
-        }
+    public void markDone(LocalDate date) {
+        completedDates.add(date);
     }
 
     public boolean isCompletedOn(LocalDate date) {
@@ -31,6 +29,23 @@ public class Habit {
 
     public void setFrequency(String frequency) {
         this.frequency = frequency;
+    }
+
+    public String toFileString() {
+        StringBuilder sb = new StringBuilder(name + "|" + frequency);
+        for (LocalDate d : completedDates) {
+            sb.append("|").append(d);
+        }
+        return sb.toString();
+    }
+
+    public static Habit fromFileString(String line) {
+        String[] parts = line.split("\\|");
+        Habit h = new Habit(parts[0], parts[1]);
+        for (int i = 2; i < parts.length; i++) {
+            h.markDone(LocalDate.parse(parts[i]));
+        }
+        return h;
     }
 
     @Override
