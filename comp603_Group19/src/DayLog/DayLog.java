@@ -19,8 +19,8 @@ public class DayLog {
 
     private void displayWelcome() {
         System.out.println("=================================");
-        System.out.println("             DAYLOG               ");
-        System.out.println("     Habit Tracker & Calendar     ");
+        System.out.println("              DAYLOG              ");
+        System.out.println("      Habit Tracker & Calendar    ");
         System.out.println("=================================");
         System.out.println();
     }
@@ -34,19 +34,19 @@ public class DayLog {
 
             switch (choice) {
                 case 1:
-
+                    // Temporary test code
                     Habit testHabit = new Habit("Study Java", "Daily");
                     System.out.println("Created habit: " + testHabit);
                     pause();
                     break;
 
                 case 2:
-                    System.out.println("[Calendar menu will be implemented next]");
+                    System.out.println("[Calendar menu will be implemented later]");
                     pause();
                     break;
 
                 case 3:
-                    System.out.println("[Daily overview will be implemented next]");
+                    System.out.println("[Daily overview will be implemented later]");
                     pause();
                     break;
 
@@ -56,6 +56,7 @@ public class DayLog {
 
                 default:
                     System.out.println("Invalid option. Please try again.");
+                    pause();
             }
         }
     }
@@ -72,8 +73,10 @@ public class DayLog {
     private int readIntInput(String prompt) {
         while (true) {
             System.out.print(prompt);
+            String input = scanner.nextLine();
+
             try {
-                return Integer.parseInt(scanner.nextLine());
+                return Integer.parseInt(input);
             } catch (NumberFormatException e) {
                 System.out.println("Please enter a valid number.");
             }
@@ -81,9 +84,9 @@ public class DayLog {
     }
 
     private void pause() {
-        System.out.println();
-        System.out.println("Press Enter to continue...");
+        System.out.print("Press Enter to continue...");
         scanner.nextLine();
+        System.out.println();
     }
 
     private void exitApplication() {
