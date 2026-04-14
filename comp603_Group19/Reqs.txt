@@ -1,0 +1,11 @@
+Classes to create for Project 1 (CUI Organising App)
+
+OrganisingApp
+Habit
+CalendarEvent
+HabitManager
+CalendarManager
+DailyOverviewManager
+StorageManager
+HabitMenuUI
+CalendarMenuUI
