@@ -35,7 +35,6 @@ public class DayLog {
     // ================= MAIN MENU =================
     private void mainMenu() {
         boolean running = true;
-
         while (running) {
             System.out.println("\n--- MAIN MENU ---");
             System.out.println("1. Habits");
@@ -62,7 +61,6 @@ public class DayLog {
     // ================= HABITS =================
     private void habitMenu() {
         boolean inMenu = true;
-
         while (inMenu) {
             System.out.println("\n--- HABIT MENU ---");
             System.out.println("1. Habit Checklist (Today)");
@@ -84,20 +82,24 @@ public class DayLog {
     }
 
     private void habitChecklist() {
-        if (!habitManager.hasHabits()) {
-            System.out.println("No habits available.");
+        LocalDate today = LocalDate.now();
+        var todayHabits = habitManager.getHabitsForDay(today.getDayOfWeek());
+
+        if (todayHabits.isEmpty()) {
+            System.out.println("No habits scheduled for today.");
             return;
         }
 
         boolean inChecklist = true;
-
         while (inChecklist) {
-            System.out.println("\n--- TODAY'S HABIT CHECKLIST ---");
+            System.out.println("\n===== HABIT CHECKLIST =====");
+            System.out.println("Date: " + today + " (" + today.getDayOfWeek() + ")");
+            System.out.println("---------------------------");
 
-            for (int i = 0; i < habitManager.getHabits().size(); i++) {
-                boolean done = habitManager.isCompletedOnDate(i, LocalDate.now());
-                System.out.println((i + 1) + ". " + (done ? "[X] " : "[ ] ")
-                        + habitManager.getHabits().get(i));
+            for (int i = 0; i < todayHabits.size(); i++) {
+                Habit h = todayHabits.get(i);
+                boolean done = h.isCompletedOn(today);
+                System.out.println((i + 1) + ". " + (done ? "[X] " : "[ ] ") + h);
             }
 
             System.out.print("Enter habit number to mark done (0 to back): ");
@@ -105,24 +107,17 @@ public class DayLog {
 
             if (choice == 0) {
                 inChecklist = false;
+            } else if (choice > 0 && choice <= todayHabits.size()) {
+                todayHabits.get(choice - 1).markDone(today);
+                System.out.println("Habit marked as done.");
             } else {
-                int index = choice - 1;
-                if (index >= 0 && index < habitManager.getHabits().size()) {
-                    habitManager.markHabitDone(index, LocalDate.now());
-                    System.out.println(
-                            "Habit \"" + habitManager.getHabits().get(index)
-                            + "\" marked as done."
-                    );
-                } else {
-                    System.out.println("Invalid habit number.");
-                }
+                System.out.println("Invalid habit number.");
             }
         }
     }
 
     private void manageHabits() {
         boolean managing = true;
-
         while (managing) {
             System.out.println("\n--- MANAGE HABITS ---");
             System.out.println("1. View Current Habits");
@@ -150,61 +145,48 @@ public class DayLog {
     }
 
     private void viewHabits() {
-        if (!habitManager.hasHabits()) {
+        var habits = habitManager.getHabits();
+        if (habits.isEmpty()) {
             System.out.println("No habits added yet.");
             return;
         }
-
-        for (int i = 0; i < habitManager.getHabits().size(); i++) {
-            System.out.println((i + 1) + ". " + habitManager.getHabits().get(i));
+        for (int i = 0; i < habits.size(); i++) {
+            System.out.println((i + 1) + ". " + habits.get(i));
         }
     }
 
     private void addHabit() {
         System.out.print("Habit name: ");
         String name = scanner.nextLine();
-        System.out.print("Frequency: ");
-        String frequency = scanner.nextLine();
-        habitManager.addHabit(name, frequency);
-        System.out.println("Habit \"" + name + "\" with frequency \"" + frequency + "\" was added successfully.");
+        System.out.print("Frequency (Daily / Mon,Tue,etc): ");
+        String freq = scanner.nextLine();
+        habitManager.addHabit(name, freq);
+        System.out.println("Habit \"" + name + "\" with frequency \"" + freq + "\" added successfully.");
     }
 
     private void editHabit() {
-        if (!habitManager.hasHabits()) {
-            return;
-        }
-
         viewHabits();
-        System.out.print("Select habit: ");
+        System.out.print("Select habit to edit: ");
         int index = readInt() - 1;
-
         System.out.print("New name: ");
         String name = scanner.nextLine();
         System.out.print("New frequency: ");
-        String frequency = scanner.nextLine();
-
-        habitManager.editHabit(index, name, frequency);
+        String freq = scanner.nextLine();
+        habitManager.editHabit(index, name, freq);
         System.out.println("Habit updated successfully.");
     }
 
     private void deleteHabit() {
-        if (!habitManager.hasHabits()) {
-            return;
-        }
-
         viewHabits();
         System.out.print("Select habit to delete: ");
         int index = readInt() - 1;
-
-        String removed = habitManager.getHabits().get(index).toString();
         habitManager.deleteHabit(index);
-        System.out.println("Habit " + removed + " was deleted successfully.");
+        System.out.println("Habit deleted successfully.");
     }
 
     // ================= CALENDAR =================
     private void calendarMenu() {
         boolean inMenu = true;
-
         while (inMenu) {
             System.out.println("\n--- CALENDAR MENU ---");
             System.out.println("1. Add Event");
@@ -235,42 +217,30 @@ public class DayLog {
         LocalDate date = LocalDate.parse(scanner.nextLine());
         System.out.print("Description: ");
         String desc = scanner.nextLine();
-
         calendarManager.addEvent(title, date, desc);
-        System.out.println("Event \"" + title + "\" added successfully.");
+        System.out.println("Event added successfully.");
     }
 
     private void viewEventsByDate() {
         System.out.print("Enter date (YYYY-MM-DD): ");
         LocalDate date = LocalDate.parse(scanner.nextLine());
-
         var events = calendarManager.getEventsForDate(date);
         if (events.isEmpty()) {
             System.out.println("No events found.");
             return;
         }
-
-        for (int i = 0; i < events.size(); i++) {
-            System.out.println((i + 1) + ". " + events.get(i));
-        }
+        events.forEach(e -> System.out.println("- " + e));
     }
 
     private void deleteEvent() {
         System.out.print("Enter date (YYYY-MM-DD): ");
         LocalDate date = LocalDate.parse(scanner.nextLine());
-
         var events = calendarManager.getEventsForDate(date);
-        if (events.isEmpty()) {
-            return;
-        }
-
         for (int i = 0; i < events.size(); i++) {
             System.out.println((i + 1) + ". " + events.get(i));
         }
-
         System.out.print("Select event to delete: ");
         int index = readInt() - 1;
-
         calendarManager.deleteEvent(date, index);
         System.out.println("Event deleted successfully.");
     }
@@ -280,23 +250,18 @@ public class DayLog {
         LocalDate today = LocalDate.now();
         System.out.println("\n--- DAILY OVERVIEW (" + today + ") ---");
 
-        for (int i = 0; i < habitManager.getHabits().size(); i++) {
-            boolean done = habitManager.isCompletedOnDate(i, today);
-            System.out.println((done ? "[X] " : "[ ] ")
-                    + habitManager.getHabits().get(i));
-        }
+        habitManager.getHabitsForDay(today.getDayOfWeek()).forEach(h -> {
+            System.out.println((h.isCompletedOn(today) ? "[X] " : "[ ] ") + h);
+        });
 
-        for (var e : calendarManager.getEventsForDate(today)) {
-            System.out.println("- " + e);
-        }
+        calendarManager.getEventsForDate(today).forEach(e -> System.out.println("- " + e));
     }
 
-    // ================= INPUT =================
     private int readInt() {
         while (true) {
             try {
                 return Integer.parseInt(scanner.nextLine());
-            } catch (NumberFormatException e) {
+            } catch (Exception e) {
                 System.out.print("Enter a number: ");
             }
         }
