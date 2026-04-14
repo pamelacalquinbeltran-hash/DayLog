@@ -8,14 +8,46 @@ public class HabitManager {
 
     private final List<Habit> habits = new ArrayList<>();
 
-    public void addHabit(String name, String freq) {
-        habits.add(new Habit(name, freq));
+    // ===== ADD HABITS =====
+    public void addHabit(String name, String frequency) {
+        habits.add(new Habit(name, frequency));
     }
 
-    public void addHabitObject(Habit h) {
-        habits.add(h);
+    // ✅ REQUIRED for StorageManager
+    public void addHabitObject(Habit habit) {
+        habits.add(habit);
     }
 
+    // ===== CHECK EXISTENCE =====
+    public boolean existsByName(String name) {
+        return habits.stream()
+                .anyMatch(h -> h.getName().equalsIgnoreCase(name));
+    }
+
+    public int indexOf(String name) {
+        for (int i = 0; i < habits.size(); i++) {
+            if (habits.get(i).getName().equalsIgnoreCase(name)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    // ===== EDIT / DELETE =====
+    public void editHabit(int index, String name, String frequency) {
+        if (index >= 0 && index < habits.size()) {
+            habits.get(index).setName(name);
+            habits.get(index).setFrequency(frequency);
+        }
+    }
+
+    public void deleteHabit(int index) {
+        if (index >= 0 && index < habits.size()) {
+            habits.remove(index);
+        }
+    }
+
+    // ===== QUERY =====
     public List<Habit> getHabits() {
         return habits;
     }
@@ -28,18 +60,5 @@ public class HabitManager {
             }
         }
         return result;
-    }
-
-    public void editHabit(int index, String name, String freq) {
-        if (index >= 0 && index < habits.size()) {
-            habits.get(index).setName(name);
-            habits.get(index).setFrequency(freq);
-        }
-    }
-
-    public void deleteHabit(int index) {
-        if (index >= 0 && index < habits.size()) {
-            habits.remove(index);
-        }
     }
 }

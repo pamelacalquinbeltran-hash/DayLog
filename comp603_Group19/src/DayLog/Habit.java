@@ -20,7 +20,8 @@ public class Habit {
         if (frequency.equalsIgnoreCase("daily")) {
             return true;
         }
-        return frequency.toLowerCase().contains(day.name().substring(0, 3).toLowerCase());
+        return frequency.toLowerCase()
+                .contains(day.name().substring(0, 3).toLowerCase());
     }
 
     public void markDone(LocalDate date) {
@@ -29,6 +30,10 @@ public class Habit {
 
     public boolean isCompletedOn(LocalDate date) {
         return completedDates.contains(date);
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String toFileString() {

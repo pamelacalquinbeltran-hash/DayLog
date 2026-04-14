@@ -1,7 +1,6 @@
 package DayLog;
 
 import java.io.*;
-import java.time.LocalDate;
 import java.util.List;
 
 public class StorageManager {
@@ -11,9 +10,9 @@ public class StorageManager {
 
     // ================= HABITS =================
     public static void saveHabits(List<Habit> habits) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(HABITS_FILE))) {
-            for (Habit h : habits) {
-                pw.println(h.toFileString());
+        try (PrintWriter writer = new PrintWriter(new FileWriter(HABITS_FILE))) {
+            for (Habit habit : habits) {
+                writer.println(habit.toFileString());
             }
         } catch (IOException e) {
             System.out.println("Error saving habits.");
@@ -26,9 +25,9 @@ public class StorageManager {
             return;
         }
 
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-            while ((line = br.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
                 Habit habit = Habit.fromFileString(line);
                 habitManager.addHabitObject(habit);
             }
@@ -39,9 +38,9 @@ public class StorageManager {
 
     // ================= EVENTS =================
     public static void saveEvents(List<CalendarEvent> events) {
-        try (PrintWriter pw = new PrintWriter(new FileWriter(EVENTS_FILE))) {
-            for (CalendarEvent e : events) {
-                pw.println(e.toFileString());
+        try (PrintWriter writer = new PrintWriter(new FileWriter(EVENTS_FILE))) {
+            for (CalendarEvent event : events) {
+                writer.println(event.toFileString());
             }
         } catch (IOException e) {
             System.out.println("Error saving events.");
@@ -54,9 +53,9 @@ public class StorageManager {
             return;
         }
 
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-            while ((line = br.readLine()) != null) {
+            while ((line = reader.readLine()) != null) {
                 CalendarEvent event = CalendarEvent.fromFileString(line);
                 calendarManager.addEventObject(event);
             }
