@@ -12,10 +12,10 @@ public class HabitManager {
         habits.add(new Habit(name, frequency));
     }
 
-    public void editHabit(int index, String name, String frequency) {
+    public void editHabit(int index, String name, String freq) {
         if (valid(index)) {
             habits.get(index).setName(name);
-            habits.get(index).setFrequency(frequency);
+            habits.get(index).setFrequency(freq);
         }
     }
 

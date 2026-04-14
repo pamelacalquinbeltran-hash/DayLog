@@ -21,7 +21,6 @@ public class DayLog {
         System.out.println("Goodbye!");
     }
 
-    // ================= TITLE =================
     private void showTitle() {
         System.out.println("=================================");
         System.out.println("              DAYLOG              ");
@@ -56,7 +55,7 @@ public class DayLog {
         }
     }
 
-    // ================= HABIT MENU =================
+    // ================= HABITS =================
     private void habitMenu() {
         boolean inMenu = true;
 
@@ -93,14 +92,13 @@ public class DayLog {
                     + habitManager.getHabits().get(i));
         }
 
-        System.out.println("Enter habit number to toggle (0 to back):");
+        System.out.print("Toggle habit (0 to back): ");
         int choice = readInt();
         if (choice > 0) {
             habitManager.toggleCompletion(choice - 1, LocalDate.now());
         }
     }
 
-    // ================= MANAGE HABITS =================
     private void manageHabits() {
         boolean managing = true;
 
@@ -132,11 +130,10 @@ public class DayLog {
 
     private void viewHabits() {
         if (!habitManager.hasHabits()) {
-            System.out.println("No habits have been added yet.");
+            System.out.println("No habits added yet.");
             return;
         }
 
-        System.out.println("\n--- CURRENT HABITS ---");
         for (int i = 0; i < habitManager.getHabits().size(); i++) {
             System.out.println((i + 1) + ". " + habitManager.getHabits().get(i));
         }
@@ -145,40 +142,55 @@ public class DayLog {
     private void addHabit() {
         System.out.print("Habit name: ");
         String name = scanner.nextLine();
+
         System.out.print("Frequency: ");
         String frequency = scanner.nextLine();
+
         habitManager.addHabit(name, frequency);
+
+        System.out.println("Habit \"" + name + "\" with frequency \""
+                + frequency + "\" was added successfully.");
     }
 
     private void editHabit() {
         if (!habitManager.hasHabits()) {
+            System.out.println("No habits to edit.");
             return;
         }
 
         viewHabits();
-        System.out.print("Select habit to edit: ");
+        System.out.print("Select habit: ");
         int index = readInt() - 1;
 
         System.out.print("New name: ");
         String name = scanner.nextLine();
+
         System.out.print("New frequency: ");
         String frequency = scanner.nextLine();
 
         habitManager.editHabit(index, name, frequency);
+
+        System.out.println("Habit updated to \"" + name
+                + "\" [" + frequency + "].");
     }
 
     private void deleteHabit() {
         if (!habitManager.hasHabits()) {
+            System.out.println("No habits to delete.");
             return;
         }
 
         viewHabits();
         System.out.print("Select habit to delete: ");
         int index = readInt() - 1;
+
+        String removed = habitManager.getHabits().get(index).toString();
         habitManager.deleteHabit(index);
+
+        System.out.println("Habit " + removed + " was deleted successfully.");
     }
 
-    // ================= CALENDAR MENU =================
+    // ================= CALENDAR =================
     private void calendarMenu() {
         boolean inMenu = true;
 
@@ -208,12 +220,16 @@ public class DayLog {
     private void addEvent() {
         System.out.print("Event title: ");
         String title = scanner.nextLine();
+
         System.out.print("Event date (YYYY-MM-DD): ");
         LocalDate date = LocalDate.parse(scanner.nextLine());
+
         System.out.print("Description: ");
         String desc = scanner.nextLine();
 
         calendarManager.addEvent(title, date, desc);
+
+        System.out.println("Event \"" + title + "\" added successfully.");
     }
 
     private void viewEventsByDate() {
@@ -246,7 +262,9 @@ public class DayLog {
 
         System.out.print("Select event to delete: ");
         int index = readInt() - 1;
+
         calendarManager.deleteEvent(date, index);
+        System.out.println("Event deleted successfully.");
     }
 
     // ================= DAILY OVERVIEW =================
@@ -260,8 +278,7 @@ public class DayLog {
                     + habitManager.getHabits().get(i));
         }
 
-        var events = calendarManager.getEventsForDate(today);
-        for (var e : events) {
+        for (var e : calendarManager.getEventsForDate(today)) {
             System.out.println("- " + e);
         }
     }
