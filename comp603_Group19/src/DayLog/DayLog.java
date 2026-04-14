@@ -25,6 +25,7 @@ public class DayLog {
         System.out.println();
     }
 
+    // ================= MAIN MENU =================
     private void mainMenuLoop() {
         boolean running = true;
 
@@ -34,26 +35,19 @@ public class DayLog {
 
             switch (choice) {
                 case 1:
-                    // Temporary test code
-                    Habit testHabit = new Habit("Study Java", "Daily");
-                    System.out.println("Created habit: " + testHabit);
-                    pause();
+                    habitMenu();
                     break;
-
                 case 2:
                     System.out.println("[Calendar menu will be implemented later]");
                     pause();
                     break;
-
                 case 3:
                     System.out.println("[Daily overview will be implemented later]");
                     pause();
                     break;
-
                 case 4:
                     running = false;
                     break;
-
                 default:
                     System.out.println("Invalid option. Please try again.");
                     pause();
@@ -70,11 +64,96 @@ public class DayLog {
         System.out.println("--------------------------------");
     }
 
+    // ================= HABIT MENU =================
+    private void habitMenu() {
+        boolean inHabitMenu = true;
+
+        while (inHabitMenu) {
+            printHabitMenu();
+            int choice = readIntInput("Enter your choice: ");
+
+            switch (choice) {
+                case 1:
+                    habitChecklist();
+                    break;
+                case 2:
+                    manageHabitsMenu();
+                    break;
+                case 3:
+                    inHabitMenu = false;
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    pause();
+            }
+        }
+    }
+
+    private void printHabitMenu() {
+        System.out.println("------- HABIT MENU -------");
+        System.out.println("1. Habit Checklist (Today)");
+        System.out.println("2. Manage Habits");
+        System.out.println("3. Back to Main Menu");
+        System.out.println("--------------------------");
+    }
+
+    // ================= HABIT CHECKLIST =================
+    private void habitChecklist() {
+        System.out.println();
+        System.out.println("===== TODAY'S HABIT CHECKLIST =====");
+        System.out.println("1. [ ] Study Java");
+        System.out.println("2. [X] Morning Exercise");
+        System.out.println("3. [ ] Read 10 Pages");
+        System.out.println("----------------------------------");
+        System.out.println("Completion logic will be implemented later.");
+        pause();
+    }
+
+    // ================= MANAGE HABITS =================
+    private void manageHabitsMenu() {
+        boolean managing = true;
+
+        while (managing) {
+            printManageHabitsMenu();
+            int choice = readIntInput("Enter your choice: ");
+
+            switch (choice) {
+                case 1:
+                    System.out.println("[Add Habit – not implemented yet]");
+                    pause();
+                    break;
+                case 2:
+                    System.out.println("[Edit Habit – not implemented yet]");
+                    pause();
+                    break;
+                case 3:
+                    System.out.println("[Delete Habit – not implemented yet]");
+                    pause();
+                    break;
+                case 4:
+                    managing = false;
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+                    pause();
+            }
+        }
+    }
+
+    private void printManageHabitsMenu() {
+        System.out.println("------- MANAGE HABITS -------");
+        System.out.println("1. Add New Habit");
+        System.out.println("2. Edit Habit");
+        System.out.println("3. Delete Habit");
+        System.out.println("4. Back");
+        System.out.println("-----------------------------");
+    }
+
+    // ================= INPUT HELPERS =================
     private int readIntInput(String prompt) {
         while (true) {
             System.out.print(prompt);
             String input = scanner.nextLine();
-
             try {
                 return Integer.parseInt(input);
             } catch (NumberFormatException e) {
