@@ -1,5 +1,5 @@
-
 package DayLog;
+
 import java.util.Scanner;
 
 public class DayLog {
@@ -34,7 +34,9 @@ public class DayLog {
 
             switch (choice) {
                 case 1:
-                    System.out.println("[Habit menu will be implemented next]");
+
+                    Habit testHabit = new Habit("Study Java", "Daily");
+                    System.out.println("Created habit: " + testHabit);
                     pause();
                     break;
 
