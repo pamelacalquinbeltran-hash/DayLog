@@ -4,15 +4,32 @@
  */
 package DayLog;
 
-/**
- *
- * @author taran
- */
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 public class CalendarManager {
 
-    //helooo
-    //why is it not working
-    //is it working now?
-    //YESSSSSSSSS
-    
+    private final List<CalendarEvent> events = new ArrayList<>();
+
+    public void addEvent(String title, LocalDate date, String description) {
+        events.add(new CalendarEvent(title, date, description));
+    }
+
+    public List<CalendarEvent> getEventsForDate(LocalDate date) {
+        List<CalendarEvent> result = new ArrayList<>();
+        for (CalendarEvent event : events) {
+            if (event.getDate().equals(date)) {
+                result.add(event);
+            }
+        }
+        return result;
+    }
+
+    public void deleteEvent(LocalDate date, int index) {
+        List<CalendarEvent> sameDayEvents = getEventsForDate(date);
+        if (index >= 0 && index < sameDayEvents.size()) {
+            events.remove(sameDayEvents.get(index));
+        }
+    }
 }

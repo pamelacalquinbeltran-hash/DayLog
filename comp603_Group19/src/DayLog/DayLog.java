@@ -1,177 +1,279 @@
 package DayLog;
 
+import java.time.LocalDate;
 import java.util.Scanner;
 
 public class DayLog {
 
     private static final Scanner scanner = new Scanner(System.in);
 
+    private final HabitManager habitManager = new HabitManager();
+    private final CalendarManager calendarManager = new CalendarManager();
+
     public static void main(String[] args) {
-        DayLog app = new DayLog();
-        app.start();
+        new DayLog().start();
     }
 
     private void start() {
-        displayWelcome();
-        mainMenuLoop();
-        exitApplication();
+        showTitle();
+        mainMenu();
+        System.out.println("Saving data...");
+        System.out.println("Goodbye!");
     }
 
-    private void displayWelcome() {
+    // ================= TITLE =================
+    private void showTitle() {
         System.out.println("=================================");
         System.out.println("              DAYLOG              ");
         System.out.println("      Habit Tracker & Calendar    ");
         System.out.println("=================================");
-        System.out.println();
     }
 
     // ================= MAIN MENU =================
-    private void mainMenuLoop() {
+    private void mainMenu() {
         boolean running = true;
 
         while (running) {
-            printMainMenu();
-            int choice = readIntInput("Enter your choice: ");
+            System.out.println("\n--- MAIN MENU ---");
+            System.out.println("1. Habits");
+            System.out.println("2. Calendar");
+            System.out.println("3. Daily Overview");
+            System.out.println("4. Exit");
+            int choice = readInt();
 
             switch (choice) {
-                case 1:
+                case 1 ->
                     habitMenu();
-                    break;
-                case 2:
-                    System.out.println("[Calendar menu will be implemented later]");
-                    pause();
-                    break;
-                case 3:
-                    System.out.println("[Daily overview will be implemented later]");
-                    pause();
-                    break;
-                case 4:
+                case 2 ->
+                    calendarMenu();
+                case 3 ->
+                    dailyOverview();
+                case 4 ->
                     running = false;
-                    break;
-                default:
-                    System.out.println("Invalid option. Please try again.");
-                    pause();
+                default ->
+                    System.out.println("Invalid option");
             }
         }
-    }
-
-    private void printMainMenu() {
-        System.out.println("----------- MAIN MENU -----------");
-        System.out.println("1. Habits");
-        System.out.println("2. Calendar");
-        System.out.println("3. Daily Overview");
-        System.out.println("4. Save and Exit");
-        System.out.println("--------------------------------");
     }
 
     // ================= HABIT MENU =================
     private void habitMenu() {
-        boolean inHabitMenu = true;
+        boolean inMenu = true;
 
-        while (inHabitMenu) {
-            printHabitMenu();
-            int choice = readIntInput("Enter your choice: ");
+        while (inMenu) {
+            System.out.println("\n--- HABIT MENU ---");
+            System.out.println("1. Habit Checklist (Today)");
+            System.out.println("2. Manage Habits");
+            System.out.println("3. Back");
+            int choice = readInt();
 
             switch (choice) {
-                case 1:
+                case 1 ->
                     habitChecklist();
-                    break;
-                case 2:
-                    manageHabitsMenu();
-                    break;
-                case 3:
-                    inHabitMenu = false;
-                    break;
-                default:
-                    System.out.println("Invalid option. Please try again.");
-                    pause();
+                case 2 ->
+                    manageHabits();
+                case 3 ->
+                    inMenu = false;
+                default ->
+                    System.out.println("Invalid option");
             }
         }
     }
 
-    private void printHabitMenu() {
-        System.out.println("------- HABIT MENU -------");
-        System.out.println("1. Habit Checklist (Today)");
-        System.out.println("2. Manage Habits");
-        System.out.println("3. Back to Main Menu");
-        System.out.println("--------------------------");
-    }
-
-    // ================= HABIT CHECKLIST =================
     private void habitChecklist() {
-        System.out.println();
-        System.out.println("===== TODAY'S HABIT CHECKLIST =====");
-        System.out.println("1. [ ] Study Java");
-        System.out.println("2. [X] Morning Exercise");
-        System.out.println("3. [ ] Read 10 Pages");
-        System.out.println("----------------------------------");
-        System.out.println("Completion logic will be implemented later.");
-        pause();
+        if (!habitManager.hasHabits()) {
+            System.out.println("No habits available.");
+            return;
+        }
+
+        System.out.println("\n--- TODAY'S HABIT CHECKLIST ---");
+        for (int i = 0; i < habitManager.getHabits().size(); i++) {
+            boolean done = habitManager.isCompletedOnDate(i, LocalDate.now());
+            System.out.println((i + 1) + ". " + (done ? "[X] " : "[ ] ")
+                    + habitManager.getHabits().get(i));
+        }
+
+        System.out.println("Enter habit number to toggle (0 to back):");
+        int choice = readInt();
+        if (choice > 0) {
+            habitManager.toggleCompletion(choice - 1, LocalDate.now());
+        }
     }
 
     // ================= MANAGE HABITS =================
-    private void manageHabitsMenu() {
+    private void manageHabits() {
         boolean managing = true;
 
         while (managing) {
-            printManageHabitsMenu();
-            int choice = readIntInput("Enter your choice: ");
+            System.out.println("\n--- MANAGE HABITS ---");
+            System.out.println("1. View Current Habits");
+            System.out.println("2. Add Habit");
+            System.out.println("3. Edit Habit");
+            System.out.println("4. Delete Habit");
+            System.out.println("5. Back");
+            int choice = readInt();
 
             switch (choice) {
-                case 1:
-                    System.out.println("[Add Habit – not implemented yet]");
-                    pause();
-                    break;
-                case 2:
-                    System.out.println("[Edit Habit – not implemented yet]");
-                    pause();
-                    break;
-                case 3:
-                    System.out.println("[Delete Habit – not implemented yet]");
-                    pause();
-                    break;
-                case 4:
+                case 1 ->
+                    viewHabits();
+                case 2 ->
+                    addHabit();
+                case 3 ->
+                    editHabit();
+                case 4 ->
+                    deleteHabit();
+                case 5 ->
                     managing = false;
-                    break;
-                default:
-                    System.out.println("Invalid option. Please try again.");
-                    pause();
+                default ->
+                    System.out.println("Invalid option");
             }
         }
     }
 
-    private void printManageHabitsMenu() {
-        System.out.println("------- MANAGE HABITS -------");
-        System.out.println("1. Add New Habit");
-        System.out.println("2. Edit Habit");
-        System.out.println("3. Delete Habit");
-        System.out.println("4. Back");
-        System.out.println("-----------------------------");
+    private void viewHabits() {
+        if (!habitManager.hasHabits()) {
+            System.out.println("No habits have been added yet.");
+            return;
+        }
+
+        System.out.println("\n--- CURRENT HABITS ---");
+        for (int i = 0; i < habitManager.getHabits().size(); i++) {
+            System.out.println((i + 1) + ". " + habitManager.getHabits().get(i));
+        }
     }
 
-    // ================= INPUT HELPERS =================
-    private int readIntInput(String prompt) {
+    private void addHabit() {
+        System.out.print("Habit name: ");
+        String name = scanner.nextLine();
+        System.out.print("Frequency: ");
+        String frequency = scanner.nextLine();
+        habitManager.addHabit(name, frequency);
+    }
+
+    private void editHabit() {
+        if (!habitManager.hasHabits()) {
+            return;
+        }
+
+        viewHabits();
+        System.out.print("Select habit to edit: ");
+        int index = readInt() - 1;
+
+        System.out.print("New name: ");
+        String name = scanner.nextLine();
+        System.out.print("New frequency: ");
+        String frequency = scanner.nextLine();
+
+        habitManager.editHabit(index, name, frequency);
+    }
+
+    private void deleteHabit() {
+        if (!habitManager.hasHabits()) {
+            return;
+        }
+
+        viewHabits();
+        System.out.print("Select habit to delete: ");
+        int index = readInt() - 1;
+        habitManager.deleteHabit(index);
+    }
+
+    // ================= CALENDAR MENU =================
+    private void calendarMenu() {
+        boolean inMenu = true;
+
+        while (inMenu) {
+            System.out.println("\n--- CALENDAR MENU ---");
+            System.out.println("1. Add Event");
+            System.out.println("2. View Events by Date");
+            System.out.println("3. Delete Event");
+            System.out.println("4. Back");
+            int choice = readInt();
+
+            switch (choice) {
+                case 1 ->
+                    addEvent();
+                case 2 ->
+                    viewEventsByDate();
+                case 3 ->
+                    deleteEvent();
+                case 4 ->
+                    inMenu = false;
+                default ->
+                    System.out.println("Invalid option");
+            }
+        }
+    }
+
+    private void addEvent() {
+        System.out.print("Event title: ");
+        String title = scanner.nextLine();
+        System.out.print("Event date (YYYY-MM-DD): ");
+        LocalDate date = LocalDate.parse(scanner.nextLine());
+        System.out.print("Description: ");
+        String desc = scanner.nextLine();
+
+        calendarManager.addEvent(title, date, desc);
+    }
+
+    private void viewEventsByDate() {
+        System.out.print("Enter date (YYYY-MM-DD): ");
+        LocalDate date = LocalDate.parse(scanner.nextLine());
+
+        var events = calendarManager.getEventsForDate(date);
+        if (events.isEmpty()) {
+            System.out.println("No events found.");
+            return;
+        }
+
+        for (int i = 0; i < events.size(); i++) {
+            System.out.println((i + 1) + ". " + events.get(i));
+        }
+    }
+
+    private void deleteEvent() {
+        System.out.print("Enter date (YYYY-MM-DD): ");
+        LocalDate date = LocalDate.parse(scanner.nextLine());
+
+        var events = calendarManager.getEventsForDate(date);
+        if (events.isEmpty()) {
+            return;
+        }
+
+        for (int i = 0; i < events.size(); i++) {
+            System.out.println((i + 1) + ". " + events.get(i));
+        }
+
+        System.out.print("Select event to delete: ");
+        int index = readInt() - 1;
+        calendarManager.deleteEvent(date, index);
+    }
+
+    // ================= DAILY OVERVIEW =================
+    private void dailyOverview() {
+        LocalDate today = LocalDate.now();
+        System.out.println("\n--- DAILY OVERVIEW (" + today + ") ---");
+
+        for (int i = 0; i < habitManager.getHabits().size(); i++) {
+            boolean done = habitManager.isCompletedOnDate(i, today);
+            System.out.println((done ? "[X] " : "[ ] ")
+                    + habitManager.getHabits().get(i));
+        }
+
+        var events = calendarManager.getEventsForDate(today);
+        for (var e : events) {
+            System.out.println("- " + e);
+        }
+    }
+
+    // ================= INPUT =================
+    private int readInt() {
         while (true) {
-            System.out.print(prompt);
-            String input = scanner.nextLine();
             try {
-                return Integer.parseInt(input);
+                return Integer.parseInt(scanner.nextLine());
             } catch (NumberFormatException e) {
-                System.out.println("Please enter a valid number.");
+                System.out.print("Enter a number: ");
             }
         }
-    }
-
-    private void pause() {
-        System.out.print("Press Enter to continue...");
-        scanner.nextLine();
-        System.out.println();
-    }
-
-    private void exitApplication() {
-        System.out.println();
-        System.out.println("Saving data...");
-        System.out.println("Data saved successfully.");
-        System.out.println("Goodbye!");
     }
 }

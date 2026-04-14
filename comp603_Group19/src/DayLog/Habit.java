@@ -1,4 +1,3 @@
-
 package DayLog;
 
 import java.time.LocalDate;
@@ -8,21 +7,22 @@ import java.util.Set;
 public class Habit {
 
     private String name;
-    private String frequency; // e.g. Daily, Mon/Wed/Fri
-    private Set<LocalDate> completedDates;
+    private String frequency;
+    private final Set<LocalDate> completedDates = new HashSet<>();
 
     public Habit(String name, String frequency) {
         this.name = name;
         this.frequency = frequency;
-        this.completedDates = new HashSet<>();
     }
 
-    public String getName() {
-        return name;
+    public void toggleCompletion(LocalDate date) {
+        if (!completedDates.add(date)) {
+            completedDates.remove(date);
+        }
     }
 
-    public String getFrequency() {
-        return frequency;
+    public boolean isCompletedOn(LocalDate date) {
+        return completedDates.contains(date);
     }
 
     public void setName(String name) {
@@ -31,18 +31,6 @@ public class Habit {
 
     public void setFrequency(String frequency) {
         this.frequency = frequency;
-    }
-
-    public boolean isCompletedOn(LocalDate date) {
-        return completedDates.contains(date);
-    }
-
-    public void toggleCompletion(LocalDate date) {
-        if (completedDates.contains(date)) {
-            completedDates.remove(date);
-        } else {
-            completedDates.add(date);
-        }
     }
 
     @Override
