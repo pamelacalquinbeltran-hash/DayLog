@@ -4,9 +4,9 @@ import java.time.LocalDate;
 
 public class CalendarEvent {
 
-    private final String title;
-    private final LocalDate date;
-    private final String description;
+    private String title;
+    private LocalDate date;
+    private String description;
 
     public CalendarEvent(String title, LocalDate date, String description) {
         this.title = title;
@@ -18,13 +18,25 @@ public class CalendarEvent {
         return date;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String toFileString() {
         return title + "|" + date + "|" + description;
     }
 
     public static CalendarEvent fromFileString(String line) {
         String[] p = line.split("\\|");
-        return new CalendarEvent(p[0], LocalDate.parse(p[1]), p[2]);
+        return new CalendarEvent(
+                p[0],
+                LocalDate.parse(p[1]),
+                p[2]
+        );
     }
 
     @Override

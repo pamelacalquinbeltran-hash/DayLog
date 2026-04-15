@@ -8,17 +8,14 @@ public class HabitManager {
 
     private final List<Habit> habits = new ArrayList<>();
 
-    // ===== ADD HABITS =====
-    public void addHabit(String name, String frequency) {
-        habits.add(new Habit(name, frequency));
+    public void addHabit(String name, String freq) {
+        habits.add(new Habit(name, freq));
     }
 
-    // ✅ REQUIRED for StorageManager
-    public void addHabitObject(Habit habit) {
-        habits.add(habit);
+    public void addHabitObject(Habit h) {
+        habits.add(h);
     }
 
-    // ===== CHECK EXISTENCE =====
     public boolean existsByName(String name) {
         return habits.stream()
                 .anyMatch(h -> h.getName().equalsIgnoreCase(name));
@@ -33,11 +30,10 @@ public class HabitManager {
         return -1;
     }
 
-    // ===== EDIT / DELETE =====
-    public void editHabit(int index, String name, String frequency) {
+    public void editHabit(int index, String name, String freq) {
         if (index >= 0 && index < habits.size()) {
             habits.get(index).setName(name);
-            habits.get(index).setFrequency(frequency);
+            habits.get(index).setFrequency(freq);
         }
     }
 
@@ -47,7 +43,6 @@ public class HabitManager {
         }
     }
 
-    // ===== QUERY =====
     public List<Habit> getHabits() {
         return habits;
     }
