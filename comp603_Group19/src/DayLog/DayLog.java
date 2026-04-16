@@ -121,7 +121,7 @@ public class DayLog {
             }
 
             System.out.println();
-            System.out.print("Enter habit number to mark done (0 to back): ");
+            System.out.print("Enter habit number to mark done, or enter 0 to go back:  ");
 
             int choice = readInt();
 
@@ -221,7 +221,7 @@ public class DayLog {
         }
 
         viewHabits();
-        System.out.print("Select habit number to edit or enter 0 to exit: ");
+        System.out.print("Select a habit number to edit, or enter 0 to go back: ");
         int choice = readInt();
 
         if (choice == 0) {
@@ -260,7 +260,7 @@ public class DayLog {
         }
 
         viewHabits();
-        System.out.print("Select habit number to delete or enter 0 to exit: ");
+        System.out.print("Select a habit number to delete, or enter 0 to go back: ");
         int choice = readInt();
 
         if (choice == 0) {

@@ -70,7 +70,7 @@ public class CalendarManager {
             return;
         }
 
-        System.out.print("Select event number to edit (0 to back): ");
+        System.out.print("Select an even number to edit, or enter 0 to go back: ");
         int idx = Integer.parseInt(scanner.nextLine());
 
         if (idx == 0) {
@@ -99,7 +99,7 @@ public class CalendarManager {
             return;
         }
 
-        System.out.print("Select event number to delete (0 to back): ");
+        System.out.print("Select an even number to delete, or enter 0 to go back: ");
         int idx = Integer.parseInt(scanner.nextLine());
 
         if (idx == 0) {
