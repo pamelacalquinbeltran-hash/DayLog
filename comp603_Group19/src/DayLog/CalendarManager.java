@@ -43,8 +43,8 @@ public class CalendarManager {
 
         int c = Integer.parseInt(scanner.nextLine());
         if (c == 1) {
-            printAllEvents(); 
-        }else if (c == 2) {
+            printAllEvents();
+        } else if (c == 2) {
             viewByDateWithBack();
         }
     }
@@ -72,17 +72,25 @@ public class CalendarManager {
 
         System.out.print("Select event number to edit (0 to back): ");
         int idx = Integer.parseInt(scanner.nextLine());
+
         if (idx == 0) {
             return;
         }
+        if (idx < 1 || idx > events.size()) {
+            System.out.println("Invalid event number.");
+            return;
+        }
 
-        CalendarEvent e = getAllEvents().get(idx - 1);
+        CalendarEvent e = events.get(idx - 1);
+
         System.out.print("New title: ");
         e.setTitle(scanner.nextLine());
+
         System.out.print("New description: ");
         e.setDescription(scanner.nextLine());
 
         System.out.println("Event updated successfully.");
+        printAllEvents();
     }
 
     public void deleteEventWithBack() {
@@ -93,42 +101,95 @@ public class CalendarManager {
 
         System.out.print("Select event number to delete (0 to back): ");
         int idx = Integer.parseInt(scanner.nextLine());
+
         if (idx == 0) {
+            return;
+        }
+        if (idx < 1 || idx > events.size()) {
+            System.out.println("Invalid event number.");
             return;
         }
 
         events.remove(idx - 1);
         System.out.println("Event deleted successfully.");
+        printAllEvents();
     }
 
     public void printAllEvents() {
-        if (events.isEmpty()) {
-            System.out.println("No events available.");
-            return;
-        }
-        getAllEvents().forEach(e
-                -> System.out.println(e.getDate().format(DATE_FORMAT)
-                        + " (" + e.getDate().getDayOfWeek() + ") - " + e));
+        events.sort(Comparator.comparing(CalendarEvent::getDate));
+        printEventTable(events);
     }
 
     public void printEventsForDate(LocalDate date) {
-        var list = events.stream()
+        List<CalendarEvent> filtered = events.stream()
                 .filter(e -> e.getDate().equals(date))
+                .sorted(Comparator.comparing(CalendarEvent::getDate))
                 .toList();
 
-        if (list.isEmpty()) {
+        if (filtered.isEmpty()) {
             System.out.println("No events found for "
-                    + date.format(DATE_FORMAT) + ".");
+                    + date.format(DayLog.DATE_FORMAT)
+                    + " (" + date.getDayOfWeek() + ").");
         } else {
-            list.forEach(e -> System.out.println("- " + e));
+            printEventTable(filtered);
+        }
+    }
+
+    private void printEventTable(List<CalendarEvent> events) {
+        if (events.isEmpty()) {
+            System.out.println("No events to display.");
+            return;
+        }
+
+        System.out.printf("%-4s %-12s %-10s %-20s %-30s%n",
+                "No", "Date", "Day", "Title", "Description");
+        System.out.println("--------------------------------------------------------------------------");
+
+        for (int i = 0; i < events.size(); i++) {
+            CalendarEvent e = events.get(i);
+
+            System.out.printf("%-4d %-12s %-10s %-20s %-30s%n",
+                    i + 1,
+                    e.getDate().format(DayLog.DATE_FORMAT),
+                    e.getDate().getDayOfWeek(),
+                    e.getTitle(),
+                    e.getDescription());
         }
     }
 
     public void monthlyOverview() {
-        System.out.println("(Monthly overview unchanged)");
+        System.out.print("Enter month and year (MM-YYYY): ");
+        String[] parts = scanner.nextLine().split("-");
+        int month = Integer.parseInt(parts[0]);
+        int year = Integer.parseInt(parts[1]);
+
+        List<CalendarEvent> filtered = events.stream()
+                .filter(e -> e.getDate().getMonthValue() == month
+                && e.getDate().getYear() == year)
+                .sorted(Comparator.comparing(CalendarEvent::getDate))
+                .toList();
+
+        if (filtered.isEmpty()) {
+            System.out.println("No events found for "
+                    + String.format("%02d-%d", month, year) + ".");
+        } else {
+            printEventTable(filtered);
+        }
     }
 
     public void yearlyOverview() {
-        System.out.println("(Yearly overview unchanged)");
+        System.out.print("Enter year (YYYY): ");
+        int year = Integer.parseInt(scanner.nextLine());
+
+        List<CalendarEvent> filtered = events.stream()
+                .filter(e -> e.getDate().getYear() == year)
+                .sorted(Comparator.comparing(CalendarEvent::getDate))
+                .toList();
+
+        if (filtered.isEmpty()) {
+            System.out.println("No events found for year " + year + ".");
+        } else {
+            printEventTable(filtered);
+        }
     }
 }

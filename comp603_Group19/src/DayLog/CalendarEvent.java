@@ -18,6 +18,14 @@ public class CalendarEvent {
         return date;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
