@@ -8,7 +8,7 @@ import java.util.Set;
 public class Habit {
 
     private String name;
-    private String frequency;
+    private String frequency; // Daily or Mon,Tue,Wed etc
     private final Set<LocalDate> completedDates = new HashSet<>();
 
     public Habit(String name, String frequency) {
@@ -36,27 +36,29 @@ public class Habit {
         return name;
     }
 
-    public String toFileString() {
-        StringBuilder sb = new StringBuilder(name + "|" + frequency);
-        completedDates.forEach(d -> sb.append("|").append(d));
-        return sb.toString();
-    }
-
-    public static Habit fromFileString(String line) {
-        String[] p = line.split("\\|");
-        Habit h = new Habit(p[0], p[1]);
-        for (int i = 2; i < p.length; i++) {
-            h.markDone(LocalDate.parse(p[i]));
-        }
-        return h;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
     public void setFrequency(String frequency) {
         this.frequency = frequency;
+    }
+
+    public String toFileString() {
+        StringBuilder sb = new StringBuilder(name + "|" + frequency);
+        for (LocalDate d : completedDates) {
+            sb.append("|").append(d);
+        }
+        return sb.toString();
+    }
+
+    public static Habit fromFileString(String line) {
+        String[] parts = line.split("\\|");
+        Habit h = new Habit(parts[0], parts[1]);
+        for (int i = 2; i < parts.length; i++) {
+            h.markDone(LocalDate.parse(parts[i]));
+        }
+        return h;
     }
 
     @Override

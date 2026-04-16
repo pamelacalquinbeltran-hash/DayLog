@@ -11,7 +11,7 @@ public class DayLog {
 
     private static final Scanner scanner = new Scanner(System.in);
 
-    private final HabitManager habitManager = new HabitManager();
+    private final HabitManager habitManager = new HabitManager();   // LOCKED
     private final CalendarManager calendarManager = new CalendarManager();
 
     public static void main(String[] args) {
@@ -20,6 +20,8 @@ public class DayLog {
 
     private void start() {
         printHeader();
+
+        // Load persisted data
         StorageManager.loadHabits(habitManager);
         StorageManager.loadEvents(calendarManager);
 
@@ -46,8 +48,10 @@ public class DayLog {
             }
         }
 
+        // Save before exit
         StorageManager.saveHabits(habitManager.getHabits());
         StorageManager.saveEvents(calendarManager.getAllEvents());
+
         System.out.println("Goodbye!");
     }
 
@@ -58,7 +62,7 @@ public class DayLog {
         System.out.println("=================================");
     }
 
-    // ================= HABITS =================
+    // ================= HABITS (FROZEN) =================
     private void habitMenu() {
         boolean loop = true;
         while (loop) {
@@ -83,6 +87,8 @@ public class DayLog {
 
     private void habitChecklist() {
         LocalDate today = LocalDate.now();
+
+        // Get only habits that apply to today
         var todayHabits = habitManager.getHabitsForDay(today.getDayOfWeek());
 
         if (todayHabits.isEmpty()) {
@@ -92,30 +98,51 @@ public class DayLog {
 
         boolean loop = true;
         while (loop) {
-            System.out.println("\nDate: " + today.format(DATE_FORMAT)
+            System.out.println("\n===== HABIT CHECKLIST =====");
+            System.out.println("Date: " + today.format(DATE_FORMAT)
                     + " (" + today.getDayOfWeek() + ")");
+            System.out.println();
 
+            // ---- TABLE HEADER ----
+            System.out.printf("%-4s %-20s %-15s %-8s%n",
+                    "No", "Habit", "Frequency", "Status");
+            System.out.println("------------------------------------------------");
+
+            // ---- TABLE ROWS ----
             for (int i = 0; i < todayHabits.size(); i++) {
-                var h = todayHabits.get(i);
-                System.out.println((i + 1) + ". "
-                        + (h.isCompletedOn(today) ? "[X] " : "[ ] ")
-                        + h);
+                Habit h = todayHabits.get(i);
+                String status = h.isCompletedOn(today) ? "[X]" : "[ ]";
+
+                System.out.printf("%-4d %-20s %-15s %-8s%n",
+                        i + 1,
+                        h.getName(),
+                        "[" + h.toString().replace(h.getName(), "").replace("[", "").replace("]", "").trim() + "]",
+                        status);
             }
 
+            System.out.println();
             System.out.print("Enter habit number to mark done (0 to back): ");
-            int c = readInt();
-            if (c == 0) {
+
+            int choice = readInt();
+
+            if (choice == 0) {
                 loop = false;
-            } else if (c > 0 && c <= todayHabits.size()) {
-                todayHabits.get(c - 1).markDone(today);
-                System.out.println("Habit marked as done.");
+            } else if (choice > 0 && choice <= todayHabits.size()) {
+                Habit selectedHabit = todayHabits.get(choice - 1);
+
+                if (selectedHabit.isCompletedOn(today)) {
+                    System.out.println("This habit is already marked as done today.");
+                } else {
+                    selectedHabit.markDone(today);
+                    System.out.println("Habit \"" + selectedHabit.getName()
+                            + "\" marked as done for today.");
+                }
             } else {
-                System.out.println("Invalid habit number.");
+                System.out.println("Invalid habit number. Please try again.");
             }
         }
     }
 
-    // ✅ ✅ ✅ RESTORED MANAGE HABITS ✅ ✅ ✅
     private void manageHabits() {
         boolean loop = true;
         while (loop) {
@@ -149,46 +176,128 @@ public class DayLog {
             System.out.println("No habits available.");
             return;
         }
+
+        System.out.printf("%-4s %-25s %-20s%n",
+                "No", "Habit", "Frequency");
+        System.out.println("-----------------------------------------------");
+
         for (int i = 0; i < habitManager.getHabits().size(); i++) {
-            System.out.println((i + 1) + ". " + habitManager.getHabits().get(i));
+            Habit h = habitManager.getHabits().get(i);
+
+            // Extract frequency cleanly from toString()
+            String frequency = h.toString()
+                    .replace(h.getName(), "")
+                    .replace("[", "")
+                    .replace("]", "")
+                    .trim();
+
+            System.out.printf("%-4d %-25s %-20s%n",
+                    i + 1,
+                    h.getName(),
+                    frequency);
         }
     }
 
     private void addHabit() {
         System.out.print("Habit name: ");
-        String name = scanner.nextLine();
+        String name = scanner.nextLine().trim();
 
         if (habitManager.existsByName(name)) {
-            System.out.println("A habit with this name already exists.");
+            System.out.println("Error: A habit named \"" + name + "\" already exists.");
             return;
         }
 
-        System.out.print("Frequency: ");
-        habitManager.addHabit(name, scanner.nextLine());
-        System.out.println("Habit added successfully.");
+        System.out.print("Frequency (Daily / Mon,Tue etc): ");
+        String freq = scanner.nextLine();
+
+        habitManager.addHabit(name, freq);
+        System.out.println("Habit \"" + name + "\" added successfully.");
     }
 
     private void editHabit() {
+        if (habitManager.getHabits().isEmpty()) {
+            System.out.println("No habits to edit.");
+            return;
+        }
+
         viewHabits();
-        System.out.print("Select habit number to edit: ");
-        int idx = readInt() - 1;
+        System.out.print("Select habit number to edit or enter 0 to exit: ");
+        int choice = readInt();
+
+        if (choice == 0) {
+            return;
+        }
+
+        int index = choice - 1;
+        if (index < 0 || index >= habitManager.getHabits().size()) {
+            System.out.println("Invalid habit number.");
+            return;
+        }
 
         System.out.print("New name: ");
-        String n = scanner.nextLine();
-        System.out.print("New frequency: ");
-        String f = scanner.nextLine();
+        String newName = scanner.nextLine().trim();
 
-        habitManager.editHabit(idx, n, f);
+        if (!habitManager.getHabits().get(index).getName()
+                .equalsIgnoreCase(newName)
+                && habitManager.existsByName(newName)) {
+
+            System.out.println("Error: A habit named \"" + newName + "\" already exists.");
+            return;
+        }
+
+        System.out.print("New frequency: ");
+        String newFrequency = scanner.nextLine();
+
+        habitManager.editHabit(index, newName, newFrequency);
         System.out.println("Habit updated successfully.");
+        viewHabits();
     }
 
     private void deleteHabit() {
-        viewHabits();
-        System.out.print("Select habit number to delete: ");
-        int idx = readInt() - 1;
+        if (habitManager.getHabits().isEmpty()) {
+            System.out.println("No habits to delete.");
+            return;
+        }
 
-        habitManager.deleteHabit(idx);
+        viewHabits();
+        System.out.print("Select habit number to delete or enter 0 to exit: ");
+        int choice = readInt();
+
+        if (choice == 0) {
+            return;
+        }
+
+        int index = choice - 1;
+        if (index < 0 || index >= habitManager.getHabits().size()) {
+            System.out.println("Invalid habit number.");
+            return;
+        }
+
+        habitManager.deleteHabit(index);
         System.out.println("Habit deleted successfully.");
+        viewHabits();
+    }
+
+    private void printHabitTable(java.util.List<Habit> habits, LocalDate date) {
+        if (habits.isEmpty()) {
+            System.out.println("No habits to display.");
+            return;
+        }
+
+        System.out.printf("%-4s %-20s %-15s %-8s%n",
+                "No", "Habit", "Frequency", "Status");
+        System.out.println("------------------------------------------------");
+
+        for (int i = 0; i < habits.size(); i++) {
+            Habit h = habits.get(i);
+            String status = h.isCompletedOn(date) ? "[X]" : "[ ]";
+
+            System.out.printf("%-4d %-20s %-15s %-8s%n",
+                    i + 1,
+                    h.getName(),
+                    h.toString().replace(h.getName(), "").trim(), // shows [frequency]
+                    status);
+        }
     }
 
     // ================= CALENDAR =================
@@ -203,16 +312,19 @@ public class DayLog {
             System.out.println("5. Back");
 
             int c = readInt();
-            if (c == 1) {
-                calendarManager.addEventPrompt();
-            } else if (c == 2) {
-                calendarManager.viewEventsMenu();
-            } else if (c == 3) {
-                calendarManager.editEventWithBack();
-            } else if (c == 4) {
-                calendarManager.deleteEventWithBack();
-            } else if (c == 5) {
-                loop = false;
+            switch (c) {
+                case 1 ->
+                    calendarManager.addEventPrompt();
+                case 2 ->
+                    calendarManager.viewEventsMenu();
+                case 3 ->
+                    calendarManager.editEventWithBack();
+                case 4 ->
+                    calendarManager.deleteEventWithBack();
+                case 5 ->
+                    loop = false;
+                default ->
+                    System.out.println("Invalid option.");
             }
         }
     }
@@ -228,27 +340,32 @@ public class DayLog {
             System.out.println("4. Back");
 
             int c = readInt();
-            if (c == 1) {
-                dailyOverview();
-            } else if (c == 2) {
-                calendarManager.monthlyOverview();
-            } else if (c == 3) {
-                calendarManager.yearlyOverview();
-            } else if (c == 4) {
-                loop = false;
+            switch (c) {
+                case 1 ->
+                    dailyOverview();
+                case 2 ->
+                    calendarManager.monthlyOverview();
+                case 3 ->
+                    calendarManager.yearlyOverview();
+                case 4 ->
+                    loop = false;
+                default ->
+                    System.out.println("Invalid option.");
             }
         }
     }
 
     private void dailyOverview() {
         LocalDate today = LocalDate.now();
-        System.out.println("\nDate: " + today.format(DATE_FORMAT)
+
+        System.out.println("\n--- DAILY OVERVIEW ---");
+        System.out.println("Date: " + today.format(DATE_FORMAT)
                 + " (" + today.getDayOfWeek() + ")");
 
         System.out.println("\nHabits:");
         habitManager.getHabitsForDay(today.getDayOfWeek())
-                .forEach(h -> System.out.println(
-                (h.isCompletedOn(today) ? "[X] " : "[ ] ") + h));
+                .forEach(h
+                        -> System.out.println((h.isCompletedOn(today) ? "[X] " : "[ ] ") + h));
 
         System.out.println("\nEvents:");
         calendarManager.printEventsForDate(today);
